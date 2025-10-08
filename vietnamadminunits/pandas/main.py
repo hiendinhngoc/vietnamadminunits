@@ -103,7 +103,7 @@ def standardize_admin_unit_columns(df, province: str, district: str=None, ward: 
     return df
 
 
-def convert_address_column(df, address: str, convert_mode: Union[str, ConvertMode]=ConvertMode.CONVERT_2025, inplace=False, prefix: str='converted_', suffix :str='', short_name: bool=True, show_progress: bool=True):
+def convert_address_column(df, address: str, convert_mode: Union[str, ConvertMode]=ConvertMode.CONVERT_2025, inplace=False, prefix: str='converted_', suffix :str='', short_name: bool=True, show_progress: bool=True, add_attribute_columns: bool=False):
     '''
     Convert an address column in a DataFrame.
 
@@ -120,8 +120,26 @@ def convert_address_column(df, address: str, convert_mode: Union[str, ConvertMod
     '''
 
     def convert_and_get_address(x):
-        admin_unit = convert_address(address=x, mode=convert_mode)
-        return admin_unit.get_address(short_name=short_name)
+        try:
+            admin_unit = convert_address(address=x, mode=convert_mode)
+            old_admin_unit = admin_unit.OldAdminUnit
+
+            new_address = admin_unit.get_address(short_name=short_name)
+            new_province = admin_unit.short_province if short_name else admin_unit.province
+            new_ward = admin_unit.short_ward if short_name else admin_unit.ward
+            new_latitude = admin_unit.latitude
+            new_longitude = admin_unit.longitude
+
+            old_province = old_admin_unit.short_province if short_name else old_admin_unit.province
+            old_district = old_admin_unit.short_district if short_name else old_admin_unit.district
+            old_ward = old_admin_unit.short_ward if short_name else old_admin_unit.ward
+            old_latitude = old_admin_unit.latitude
+            old_longitude = old_admin_unit.longitude
+
+            return (new_address, new_province, new_ward, new_latitude, new_longitude, old_province, old_district, old_ward, old_latitude, old_longitude)
+        except Exception as e:
+            warnings.warn(f"Failed to convert {x}. {e}", UserWarning)
+            return (None, None, None, None, None, None, None, None, None, None)
 
     # INITIATIVE VARS
     df = df.copy()
@@ -133,9 +151,17 @@ def convert_address_column(df, address: str, convert_mode: Union[str, ConvertMod
     # CONVERT ADDRESS
     if show_progress:
         tqdm.pandas(desc="Converting unique addresses")
-        df_address['new_address'] = df_address[address].fillna('').progress_apply(convert_and_get_address)
+        df_address['new_info'] = df_address[address].fillna('').progress_apply(convert_and_get_address)
     else:
-        df_address['new_address'] = df_address[address].fillna('').apply(convert_and_get_address)
+        df_address['new_info'] = df_address[address].fillna('').apply(convert_and_get_address)
+
+    # SPLIT INFO TO COLUMNS
+    df_address["new_address"], df_address["new_province"], df_address["new_ward"], df_address["new_latitude"], df_address["new_longitude"], df_address["old_province"], df_address["old_district"], df_address["old_ward"], df_address["old_latitude"], df_address["old_longitude"] = zip(*df_address["new_info"])
+    df_address.drop(columns=["new_info"], inplace=True)
+    attr_columns = ["new_province", "new_ward", "new_latitude", "new_longitude", "old_province", "old_district", "old_ward", "old_latitude", "old_longitude"]
+    if not add_attribute_columns:
+        df_address.drop(columns=attr_columns, inplace=True)
+
 
     # ADD NEW ADDRESS TO DF
     df = df.merge(df_address, on=address, how='left')
@@ -144,7 +170,7 @@ def convert_address_column(df, address: str, convert_mode: Union[str, ConvertMod
     if inplace:
         df.drop(columns=[address], inplace=True)
         df.rename(columns={'new_address': address}, inplace=True)
-        df = df[original_columns]
+        df = df[original_columns + attr_columns if add_attribute_columns else []]
     else:
         df.rename(columns={'new_address': f'{prefix}{address}{suffix}'}, inplace=True)
 

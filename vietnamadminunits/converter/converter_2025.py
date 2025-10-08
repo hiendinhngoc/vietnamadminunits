@@ -63,34 +63,40 @@ def convert_address_2025(address: str):
             # Nếu có street thì lấy location của địa chỉ cũ để so sánh với polygon và location của các ward mới
             else:
                 old_location = get_geo_location(old_unit.get_address())
-                old_point = (old_location.latitude, old_location.longitude)
-                
-                # Tạo danh sách
-                containing_points = [] # Location của ward mới mà có Polygon chứa location của ward cũ
-                new_ward_points = [] # Tất cả location của ward cũ
 
-                for ward in new_wards:
-                    new_point = (ward['newWardLat'], ward['newWardLon'])
-                    new_ward_points.append(new_point)
-                    is_contain = check_point_in_polygon(point=old_point, polygon_center=new_point, polygon_area_km2=ward['newWardAreaKm2'])
-                    if is_contain:
-                        containing_points.append(new_point)
+                # Cũng có lúc địa chỉ vớ vẫn không tìm được location
+                if old_location:
+                    old_point = (old_location.latitude, old_location.longitude)
 
-                # Tìm location của ward mới gần với location của ward cũ nhất
-                nearest_point = find_nearest_point(a_point=old_point, list_of_b_points=new_ward_points)
+                    # Tạo danh sách
+                    containing_points = [] # Location của ward mới mà có Polygon chứa location của ward cũ
+                    new_ward_points = [] # Tất cả location của ward cũ
 
-                # Quyết định:
-                # Nếu chỉ có một ward mới chứa location của ward cũ > chọn ward mới đó
-                if len(containing_points) == 1:
-                    default_ward_point = containing_points[0]
-                
-                # Còn lại thì chọn ward mới gần nhất
+                    for ward in new_wards:
+                        new_point = (ward['newWardLat'], ward['newWardLon'])
+                        new_ward_points.append(new_point)
+                        is_contain = check_point_in_polygon(point=old_point, polygon_center=new_point, polygon_area_km2=ward['newWardAreaKm2'])
+                        if is_contain:
+                            containing_points.append(new_point)
+
+                    # Tìm location của ward mới gần với location của ward cũ nhất
+                    nearest_point = find_nearest_point(a_point=old_point, list_of_b_points=new_ward_points)
+
+                    # Quyết định:
+                    # Nếu chỉ có một ward mới chứa location của ward cũ > chọn ward mới đó
+                    if len(containing_points) == 1:
+                        default_ward_point = containing_points[0]
+
+                    # Còn lại thì chọn ward mới gần nhất
+                    else:
+                        default_ward_point = nearest_point
+
+
+                    # Suy location của ward mới ra new_ward_key
+                    new_ward_key = next((ward['newWardKey'] for ward in new_wards if (ward['newWardLat'], ward['newWardLon']) == default_ward_point), None)
+
                 else:
-                    default_ward_point = nearest_point
-
-
-                # Suy location của ward mới ra new_ward_key
-                new_ward_key = next((ward['newWardKey'] for ward in new_wards if (ward['newWardLat'], ward['newWardLon']) == default_ward_point), None)
+                    new_ward_key = next((ward['newWardKey'] for ward in new_wards if ward['isDefaultNewWard']), None)
 
 
     # Tạo lại một địa chỉ theo 34-province format để parse lại
@@ -100,5 +106,6 @@ def convert_address_2025(address: str):
 
     level = 2 if new_ward_key else 1
     new_unit = parse_address(new_address, mode=ParseMode.FROM_2025, keep_street=True, level=level)
+    new_unit.OldAdminUnit = old_unit
 
     return new_unit

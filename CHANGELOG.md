@@ -1,3 +1,8 @@
+# 2025-10-08
+- [vietnamadminunits/pandas/main.py](vietnamadminunits/pandas/main.py): support `add_attribute_columns:bool` to add attribute columns, such as: new_province, new_ward.
+- [vietnamadminunits/converter/converter_2025.py](vietnamadminunits/converter/converter_2025.py): support attribute `OldAdminUnit`, cover case `old_location` is `None`.
+
+
 # 2025-08-23
 - Added 2000 alias keywords for legacy ward.
 - Improve [vietnamadminunits/parser/parser_legacy.py](vietnamadminunits/parser/parser_legacy.py)

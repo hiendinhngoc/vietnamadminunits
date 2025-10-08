@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="vietnamadminunits",
-    version="1.0.3",
+    version="1.0.4",
     author="Hieu Tran",
     author_email="tnmhieu@gmail.com",
     description="Library of standardization and conversion of Vietnamese administrative units",
