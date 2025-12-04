@@ -129,7 +129,7 @@ longitude       | 106.828313
 ```
 
 ### 🔄 convert_address()
-Converts an address from the 63-province format to a standardized 34-province `AdminUnit`.
+#### Converts an address from the 63-province format to a standardized 34-province `AdminUnit`.
 
 ```python
 from vietnamadminunits import convert_address
@@ -164,6 +164,32 @@ province_code   | 79
 ward_code       | 27007                    
 latitude        | 10.8224                  
 longitude       | 106.65                    
+```
+
+#### Convert new address back to old address:
+```py
+address = '59 Nguyễn Sỹ Sách, Phường Tân Sơn, Thành phố Hồ Chí Minh'
+admin_unit = convert_address_to_old(address)
+print(admin_unit)
+```
+```txt
+Admin Unit: 59 Nguyễn Sỹ Sách, Phường 15, Quận Tân Bình, Thành phố Hồ Chí Minh
+Attribute       | Value                    
+----------------------------------------
+province        | Thành phố Hồ Chí Minh    
+district        | Quận Tân Bình            
+ward            | Phường 15                
+street          | 59 Nguyễn Sỹ Sách        
+short_province  | Hồ Chí Minh              
+short_district  | Tân Bình                 
+short_ward      | Phường 15                
+district_type   | Quận                     
+ward_type       | Phường                   
+province_code   | 79                       
+district_code   | 766                      
+ward_code       | 27007                    
+latitude        | 10.823333                
+longitude       | 106.63616   
 ```
 
 ### 🐼 Pandas
