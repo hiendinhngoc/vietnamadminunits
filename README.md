@@ -1,3 +1,23 @@
+# Notice
+
+This is a **forked version** of the original [vietnamadminunits](https://github.com/tranngocminhhieu/vietnamadminunits) repository, maintained for personal use with specific updates needed for my projects.
+
+**Please visit the [original repository](https://github.com/tranngocminhhieu/vietnamadminunits) for the official version.**
+
+I have the utmost respect for the original author's work. This fork exists because:
+- My contributions were needed urgently for my use case
+- The approval and merge process takes time
+- I wanted to maintain compatibility with my specific requirements
+
+**If you're looking for the official package, please:**
+- Use the original: `pip install vietnamadminunits`
+- Contact the original author at: [https://github.com/tranngocminhhieu/vietnamadminunits/issues]
+- Support the original project
+
+All credit goes to the original author. This fork simply contains additional updates tailored to my workflow.
+
+---
+
 # Vietnam Administrative Units Parser & Converter
 A Python library and open dataset for parsing, converting, and standardizing Vietnam's administrative units — built to support changes such as the 2025 province merger and beyond.
 
@@ -33,11 +53,11 @@ My hope is that this work not only saves you time but also helps bring more cons
 ### 📦 Installation
 Install via pip:
 ```shell
-pip install vietnamadminunits
+pip install vietnamadminunits-update
 ```
 Update to the latest version:
 ```shell
-pip install --upgrade vietnamadminunits
+pip install --upgrade vietnamadminunits-update
 ```
 
 ### 🧾 parse_address()
